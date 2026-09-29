@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   title: "محفظتي - Mahfazati",
   description: "Personal finance management",
   applicationName: "محفظتي",
+  appleWebApp: { capable: true, title: "محفظتي", statusBarStyle: "default" },
   robots: { index: false, follow: false },
 };
 
