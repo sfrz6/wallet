@@ -199,6 +199,15 @@ npm run verify
 Sessions and all financial data live in PostgreSQL (durable and
 serverless-friendly); nothing critical is stored on local disk or in memory.
 
+### Quick deploy checklist
+
+1. Neon: create a project; copy the pooled connection string (host has `-pooler`).
+2. Run migrations once from your machine using the direct (non-pooled) string:
+   `DATABASE_URL="<neon-direct-url>" npm run db:migrate`.
+3. Vercel: import the GitHub repo, set env vars `DATABASE_URL` (pooled),
+   `AUTH_SECRET`, `APP_URL`; leave email/verification vars unset for V1.
+4. Deploy. Pushes to `main` auto-deploy afterward.
+
 ## Notes
 
 - The em dash character (U+2014) is intentionally never used in the UI or source;
