@@ -46,6 +46,20 @@ export async function assertAccount(
   return account;
 }
 
+/**
+ * Asserts an account is an asset account (debit or jamiya), i.e. not a credit
+ * liability. Used for transfers, which move real money between owned accounts.
+ */
+export async function assertAssetAccount(
+  db: DbExecutor,
+  userId: string,
+  accountId: string,
+): Promise<Account> {
+  const account = await assertAccount(db, userId, accountId);
+  if (account.type === "credit") throw validation("errors.account_wrong_type");
+  return account;
+}
+
 export async function createAccount(
   db: DbExecutor,
   userId: string,

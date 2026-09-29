@@ -120,12 +120,15 @@ verification codes are printed to the server console instead of being emailed.
 | `DATABASE_URL`       | Yes      | PostgreSQL connection string (use the pooled URL on Neon).         |
 | `AUTH_SECRET`        | Yes      | Random secret (>= 16 chars) for hashing sessions and codes.        |
 | `APP_URL`            | No       | Public base URL. Defaults to `http://localhost:3000`.              |
+| `REQUIRE_EMAIL_VERIFICATION` | No | `false` (default) skips email verification: sign-ups are verified immediately. Set `true` to require it. |
 | `RESEND_API_KEY`     | No\*     | Resend API key for sending verification emails.                    |
 | `EMAIL_FROM`         | No\*     | From address, e.g. `Mahfazati <no-reply@yourdomain.com>`.          |
 | `DEV_EMAIL_FALLBACK` | No       | `true` prints codes to the console in development. Refused in prod. |
 
-\* In production you must configure a real email provider; the console fallback
-is refused when `NODE_ENV=production`.
+\* Only needed when `REQUIRE_EMAIL_VERIFICATION=true`. In V1 (verification off),
+no email provider is required. If you enable verification in production you must
+configure a real provider; the console fallback is refused when
+`NODE_ENV=production`.
 
 Generate a secret:
 

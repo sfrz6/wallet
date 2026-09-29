@@ -1,7 +1,7 @@
 export interface AccountLite {
   id: string;
   name: string;
-  type: "debit" | "credit";
+  type: "debit" | "credit" | "jamiya";
 }
 
 export interface CategoryLite {

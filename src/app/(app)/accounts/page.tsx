@@ -9,7 +9,6 @@ import { AmountText } from "@/components/AmountText";
 import { BankBadge } from "@/components/app/BankBadge";
 import { AccountFormModal } from "@/components/app/AccountFormModal";
 import { ConfirmAction } from "@/components/app/ConfirmAction";
-import { Button } from "@/components/ui/Button";
 
 export default async function AccountsPage({
   searchParams,
@@ -28,14 +27,7 @@ export default async function AccountsPage({
     <>
       <PageHeader
         title={t("accounts.title")}
-        action={
-          <AccountFormModal
-            mode="create"
-            trigger={(open) => (
-              <Button onClick={open}>{t("accounts.newAccount")}</Button>
-            )}
-          />
-        }
+        action={<AccountFormModal mode="create" triggerLabel={t("accounts.newAccount")} />}
       />
 
       <div className="mb-4">
@@ -51,12 +43,7 @@ export default async function AccountsPage({
         <EmptyState
           title={t("accounts.empty")}
           description={t("accounts.emptyDesc")}
-          action={
-            <AccountFormModal
-              mode="create"
-              trigger={(open) => <Button onClick={open}>{t("accounts.newAccount")}</Button>}
-            />
-          }
+          action={<AccountFormModal mode="create" triggerLabel={t("accounts.newAccount")} />}
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -112,11 +99,9 @@ export default async function AccountsPage({
                       openingBalance: b.account.openingBalance,
                       creditLimit: b.account.creditLimit,
                     }}
-                    trigger={(open) => (
-                      <button type="button" onClick={open} className="btn btn-ghost text-sm">
-                        {t("common.edit")}
-                      </button>
-                    )}
+                    triggerLabel={t("common.edit")}
+                    triggerVariant="ghost"
+                    triggerClassName="text-sm"
                   />
                   {!b.account.isArchived && (
                     <ConfirmAction

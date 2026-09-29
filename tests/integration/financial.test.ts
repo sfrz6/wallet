@@ -10,7 +10,12 @@ import {
   createTransfer,
 } from "@/domain/transactions";
 import { createBorrow, createLoanGiven, listDebts, recordRepayment } from "@/domain/loans";
-import { totalIncome, totalSpending, spendingByCategory } from "@/domain/reports";
+import {
+  totalIncome,
+  totalSpending,
+  spendingByCategory,
+  getDashboardSummary,
+} from "@/domain/reports";
 import { parseAmountToMinor } from "@/lib/money";
 import { DomainError } from "@/domain/errors";
 
@@ -241,6 +246,46 @@ describe("borrowing and repayment", () => {
         occurredOn: OCCURRED_ON,
       }),
     ).rejects.toBeInstanceOf(DomainError);
+  });
+});
+
+describe("committee (jamiya) account", () => {
+  it("counts in net worth but not in spendable cash, and moves via transfers", async () => {
+    const db = await makeDb();
+    const userId = await makeUser(db, "salim");
+    const daily = (
+      await createAccount(db, userId, { name: "Daily", type: "debit", openingBalanceMinor: M("1000") })
+    ).id;
+    const jam = (
+      await createAccount(db, userId, { name: "Family committee", type: "jamiya", openingBalanceMinor: M("0") })
+    ).id;
+
+    // Monthly deposit into the committee.
+    await createTransfer(db, userId, {
+      fromAccountId: daily,
+      toAccountId: jam,
+      amountMinor: M("200"),
+      occurredOn: OCCURRED_ON,
+    });
+
+    expect(await balanceOf(db, userId, daily)).toBe(M("800"));
+    expect(await balanceOf(db, userId, jam)).toBe(M("200"));
+
+    const summary = await getDashboardSummary(db, userId, MONTH_RANGE);
+    expect(summary.totalDebitCashMinor).toBe(M("800")); // committee NOT in cash
+    expect(summary.totalCommitteesMinor).toBe(M("200"));
+    expect(summary.netWorthMinor).toBe(M("1000")); // committee IS in net worth
+    expect(summary.spendingThisMonthMinor).toBe(M("0")); // deposit is not spending
+
+    // Withdraw part of it back to cash when the payout comes.
+    await createTransfer(db, userId, {
+      fromAccountId: jam,
+      toAccountId: daily,
+      amountMinor: M("50"),
+      occurredOn: OCCURRED_ON,
+    });
+    expect(await balanceOf(db, userId, daily)).toBe(M("850"));
+    expect(await balanceOf(db, userId, jam)).toBe(M("150"));
   });
 });
 

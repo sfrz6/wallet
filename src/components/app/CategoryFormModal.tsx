@@ -18,11 +18,15 @@ export interface EditableCategory {
 export function CategoryFormModal({
   mode,
   category,
-  trigger,
+  triggerLabel,
+  triggerVariant = "primary",
+  triggerClassName,
 }: {
   mode: "create" | "edit";
   category?: EditableCategory;
-  trigger: (open: () => void) => React.ReactNode;
+  triggerLabel: string;
+  triggerVariant?: "primary" | "secondary" | "ghost";
+  triggerClassName?: string;
 }) {
   const { t } = useI18n();
   const router = useRouter();
@@ -39,7 +43,9 @@ export function CategoryFormModal({
 
   return (
     <>
-      {trigger(() => setIsOpen(true))}
+      <Button variant={triggerVariant} className={triggerClassName} onClick={() => setIsOpen(true)}>
+        {triggerLabel}
+      </Button>
       <Modal
         open={isOpen}
         onClose={() => setIsOpen(false)}

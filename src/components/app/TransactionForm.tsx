@@ -8,6 +8,7 @@ import { SelectField, TextArea, TextField, type Option } from "@/components/ui/f
 import { Alert } from "@/components/ui/Alert";
 import { useI18n } from "@/lib/i18n/provider";
 import { cn } from "@/lib/cn";
+import { clientId } from "@/lib/id";
 import type { AccountLite, CategoryLite, TxKind } from "./types";
 
 function todayIso(): string {
@@ -40,7 +41,7 @@ export function TransactionForm({
   const { t } = useI18n();
   const router = useRouter();
   const [type, setType] = useState<TxKind | null>(initialType ?? null);
-  const [requestId, setRequestId] = useState(() => crypto.randomUUID());
+  const [requestId, setRequestId] = useState(() => clientId());
   const [state, formAction] = useActionState(addTransactionAction, null);
 
   useEffect(() => {
@@ -52,6 +53,10 @@ export function TransactionForm({
 
   const debitAccounts = useMemo(() => accounts.filter((a) => a.type === "debit"), [accounts]);
   const creditAccounts = useMemo(() => accounts.filter((a) => a.type === "credit"), [accounts]);
+  // Asset accounts (debit + committee) can be transfer endpoints. Expenses can
+  // come from debit or credit cards, but never from a locked committee.
+  const assetAccounts = useMemo(() => accounts.filter((a) => a.type !== "credit"), [accounts]);
+  const expenseAccounts = useMemo(() => accounts.filter((a) => a.type !== "jamiya"), [accounts]);
   const expenseCats = useMemo(
     () => categories.filter((c) => c.kind === "expense" || c.kind === "both"),
     [categories],
@@ -93,7 +98,7 @@ export function TransactionForm({
               key={k}
               type="button"
               onClick={() => {
-                setRequestId(crypto.randomUUID());
+                setRequestId(clientId());
                 setType(k);
               }}
               className="card p-3 text-start transition-colors hover:bg-[color:var(--color-surface-2)]"
@@ -142,7 +147,7 @@ export function TransactionForm({
           name="accountId"
           required
           placeholder={t("transactions.selectAccount")}
-          options={accountOptions(accounts)}
+          options={accountOptions(expenseAccounts)}
         />
       )}
       {type === "income" && (
@@ -161,14 +166,14 @@ export function TransactionForm({
             name="fromAccountId"
             required
             placeholder={t("transactions.selectAccount")}
-            options={accountOptions(debitAccounts)}
+            options={accountOptions(needsCredit ? debitAccounts : assetAccounts)}
           />
           <SelectField
             label={needsCredit ? t("transactions.creditCard") : t("transactions.toAccount")}
             name={needsCredit ? "creditAccountId" : "toAccountId"}
             required
             placeholder={t("transactions.selectAccount")}
-            options={accountOptions(needsCredit ? creditAccounts : debitAccounts)}
+            options={accountOptions(needsCredit ? creditAccounts : assetAccounts)}
           />
         </>
       )}

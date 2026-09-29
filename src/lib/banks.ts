@@ -34,3 +34,17 @@ export const BANK_INITIALS: Record<BankKey, string> = {
   bank_dhofar: "BD",
   other: "•",
 };
+
+/**
+ * Local logo assets served from /public/banks. Banks without a bundled logo
+ * fall back to the initials badge above.
+ */
+export const BANK_LOGOS: Partial<Record<BankKey, string>> = {
+  bank_muscat: "/banks/bank_muscat.jpg",
+  sohar_international: "/banks/sohar_international.jpg",
+  bank_dhofar: "/banks/bank_dhofar.png",
+};
+
+export function bankLogo(bank: BankKey | null): string | null {
+  return bank ? (BANK_LOGOS[bank] ?? null) : null;
+}

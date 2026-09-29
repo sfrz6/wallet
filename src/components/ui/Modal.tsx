@@ -62,7 +62,12 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             &times;
           </button>
         </div>
-        <div className="px-5 py-4">{children}</div>
+        <div
+          className="px-5 py-4"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

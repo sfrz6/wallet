@@ -107,11 +107,9 @@ function DebtCard({
             debtId={debt.id}
             direction={direction}
             debitAccounts={debitAccounts}
-            trigger={(open) => (
-              <button type="button" onClick={open} className="btn btn-secondary text-sm">
-                {t("debts.recordRepayment")}
-              </button>
-            )}
+            triggerLabel={t("debts.recordRepayment")}
+            triggerVariant="secondary"
+            triggerClassName="text-sm"
           />
         )}
         <ConfirmAction id={debt.id} action={deleteDebtAction} confirmKey="debts.deleteConfirm">

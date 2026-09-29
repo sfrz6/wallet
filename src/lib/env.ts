@@ -15,6 +15,12 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .optional()
     .transform((v) => v === "true"),
+  // Email verification is OFF by default for now (V1). Set to "true" in V2 to
+  // require users to verify their email before accessing the app.
+  REQUIRE_EMAIL_VERIFICATION: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 
@@ -39,4 +45,9 @@ export function getEnv(): ServerEnv {
 
 export function isProduction(): boolean {
   return (process.env.NODE_ENV ?? "development") === "production";
+}
+
+/** Whether users must verify their email before using the app. Off in V1. */
+export function emailVerificationEnabled(): boolean {
+  return getEnv().REQUIRE_EMAIL_VERIFICATION === true;
 }

@@ -40,6 +40,9 @@ export default async function DashboardPage() {
         <StatCard label={t("dashboard.totalCash")}>
           <AmountText minor={summary.totalDebitCashMinor} locale={locale} currency={currency} />
         </StatCard>
+        <StatCard label={t("dashboard.committees")}>
+          <AmountText minor={summary.totalCommitteesMinor} locale={locale} currency={currency} />
+        </StatCard>
         <StatCard label={t("dashboard.creditOutstanding")}>
           <AmountText
             minor={summary.totalCreditOutstandingMinor}
@@ -48,15 +51,6 @@ export default async function DashboardPage() {
             tone={summary.totalCreditOutstandingMinor > 0n ? "negative" : "neutral"}
           />
         </StatCard>
-        <StatCard label={t("dashboard.spendingThisMonth")}>
-          <AmountText minor={summary.spendingThisMonthMinor} locale={locale} currency={currency} />
-        </StatCard>
-        <StatCard label={t("dashboard.incomeThisMonth")}>
-          <AmountText minor={summary.incomeThisMonthMinor} locale={locale} currency={currency} />
-        </StatCard>
-      </div>
-
-      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label={t("dashboard.netWorth")}>
           <AmountText
             minor={summary.netWorthMinor}
@@ -64,6 +58,15 @@ export default async function DashboardPage() {
             currency={currency}
             tone="auto"
           />
+        </StatCard>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label={t("dashboard.spendingThisMonth")}>
+          <AmountText minor={summary.spendingThisMonthMinor} locale={locale} currency={currency} />
+        </StatCard>
+        <StatCard label={t("dashboard.incomeThisMonth")}>
+          <AmountText minor={summary.incomeThisMonthMinor} locale={locale} currency={currency} />
         </StatCard>
         <StatCard label={t("dashboard.owedToYou")}>
           <AmountText minor={summary.owedToUserMinor} locale={locale} currency={currency} />

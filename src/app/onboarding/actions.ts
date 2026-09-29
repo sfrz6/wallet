@@ -15,7 +15,7 @@ import { fail, fieldErrorsFrom, ok, toErrorKey, type ActionResult } from "@/lib/
 export interface CreatedAccount {
   id: string;
   name: string;
-  type: "debit" | "credit";
+  type: "debit" | "credit" | "jamiya";
   bank: string | null;
 }
 

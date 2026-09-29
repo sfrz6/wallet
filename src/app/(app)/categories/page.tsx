@@ -7,7 +7,6 @@ import { archiveCategoryAction } from "../actions";
 import { PageHeader, EmptyState } from "@/components/ui/layout";
 import { CategoryFormModal } from "@/components/app/CategoryFormModal";
 import { ConfirmAction } from "@/components/app/ConfirmAction";
-import { Button } from "@/components/ui/Button";
 
 export default async function CategoriesPage({
   searchParams,
@@ -32,12 +31,7 @@ export default async function CategoriesPage({
     <>
       <PageHeader
         title={t("categories.title")}
-        action={
-          <CategoryFormModal
-            mode="create"
-            trigger={(open) => <Button onClick={open}>{t("categories.newCategory")}</Button>}
-          />
-        }
+        action={<CategoryFormModal mode="create" triggerLabel={t("categories.newCategory")} />}
       />
 
       <div className="mb-4">
@@ -53,12 +47,7 @@ export default async function CategoriesPage({
         <EmptyState
           title={t("categories.empty")}
           description={t("categories.emptyDesc")}
-          action={
-            <CategoryFormModal
-              mode="create"
-              trigger={(open) => <Button onClick={open}>{t("categories.newCategory")}</Button>}
-            />
-          }
+          action={<CategoryFormModal mode="create" triggerLabel={t("categories.newCategory")} />}
         />
       ) : (
         <div className="card divide-y divide-[color:var(--color-border)]">
@@ -73,11 +62,9 @@ export default async function CategoriesPage({
                 <CategoryFormModal
                   mode="edit"
                   category={{ id: c.id, name: c.name, kind: c.kind }}
-                  trigger={(open) => (
-                    <button type="button" onClick={open} className="btn btn-ghost text-sm">
-                      {t("common.edit")}
-                    </button>
-                  )}
+                  triggerLabel={t("common.edit")}
+                  triggerVariant="ghost"
+                  triggerClassName="text-sm"
                 />
                 {!c.isArchived && (
                   <ConfirmAction

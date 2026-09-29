@@ -11,8 +11,9 @@ import {
 import { Button } from "@/components/ui/Button";
 import { SelectField, TextField } from "@/components/ui/fields";
 import { Alert } from "@/components/ui/Alert";
+import { BankSelect } from "@/components/app/BankSelect";
+import { Logo } from "@/components/Logo";
 import { useI18n } from "@/lib/i18n/provider";
-import { BANK_KEYS } from "@/lib/banks";
 
 export function OnboardingWizard() {
   const { t } = useI18n();
@@ -22,14 +23,10 @@ export function OnboardingWizard() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const bankOptions = BANK_KEYS.map((k) => ({ value: k, label: t(`banks.${k}`) }));
-
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <header className="mb-6">
-        <div className="flex items-baseline gap-2">
-          <span className="text-xl font-bold text-[color:var(--color-primary)]">{t("app.name")}</span>
-        </div>
+        <Logo size={40} />
         <h1 className="mt-4 text-2xl font-semibold">{t("onboarding.title")}</h1>
         <p className="mt-1 text-sm text-[color:var(--color-muted)]">{t("onboarding.subtitle")}</p>
         <p className="mt-2 text-xs font-medium text-[color:var(--color-primary)]">
@@ -50,7 +47,6 @@ export function OnboardingWizard() {
           <p className="mt-1 text-xs text-[color:var(--color-muted)]">{t("onboarding.examplesAccounts")}</p>
 
           <AccountForm
-            bankOptions={bankOptions}
             pending={pending}
             onSubmit={(fd) =>
               startTransition(async () => {
@@ -163,17 +159,16 @@ export function OnboardingWizard() {
 }
 
 function AccountForm({
-  bankOptions,
   onSubmit,
   pending,
 }: {
-  bankOptions: { value: string; label: string }[];
   onSubmit: (fd: FormData) => void;
   pending: boolean;
 }) {
   const { t } = useI18n();
   const formRef = useRef<HTMLFormElement>(null);
-  const [type, setType] = useState<"debit" | "credit">("debit");
+  const [type, setType] = useState<"debit" | "credit" | "jamiya">("debit");
+  const [resetKey, setResetKey] = useState(0);
 
   return (
     <form
@@ -183,6 +178,7 @@ function AccountForm({
         onSubmit(new FormData(e.currentTarget));
         formRef.current?.reset();
         setType("debit");
+        setResetKey((k) => k + 1);
       }}
       className="mt-4 space-y-4"
     >
@@ -192,20 +188,16 @@ function AccountForm({
           label={t("accounts.type")}
           name="type"
           value={type}
-          onChange={(e) => setType(e.target.value as "debit" | "credit")}
+          onChange={(e) => setType(e.target.value as "debit" | "credit" | "jamiya")}
           options={[
             { value: "debit", label: t("accountTypes.debit") },
             { value: "credit", label: t("accountTypes.credit") },
+            { value: "jamiya", label: t("accountTypes.jamiya") },
           ]}
         />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField
-          label={t("accounts.bankOptional")}
-          name="bank"
-          placeholder={t("common.none")}
-          options={bankOptions}
-        />
+        <BankSelect key={resetKey} label={t("accounts.bankOptional")} name="bank" />
         <TextField
           label={type === "credit" ? t("accounts.openingOutstanding") : t("accounts.openingBalance")}
           name="openingBalance"

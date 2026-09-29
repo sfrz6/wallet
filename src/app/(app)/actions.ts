@@ -21,6 +21,7 @@ import {
   deleteTransaction,
 } from "@/domain/transactions";
 import { createBorrow, createLoanGiven, deleteDebt, recordRepayment } from "@/domain/loans";
+import { createGoal, deleteGoal, updateGoal } from "@/domain/goals";
 import { parseAmountToMinor } from "@/lib/money";
 import { todayIso } from "@/lib/date";
 import { fail, fieldErrorsFrom, ok, toErrorKey, type ActionResult } from "@/lib/actions/result";
@@ -37,6 +38,8 @@ import {
   transferSchema,
   updateAccountSchema,
   updateCategorySchema,
+  createGoalSchema,
+  updateGoalSchema,
 } from "@/lib/validation/schemas";
 
 function revalidateFinancial() {
@@ -46,6 +49,7 @@ function revalidateFinancial() {
   revalidatePath("/debts");
   revalidatePath("/reports");
   revalidatePath("/categories");
+  revalidatePath("/goals");
 }
 
 function str(formData: FormData, key: string): string | undefined {
@@ -371,6 +375,68 @@ export async function deleteDebtAction(id: string): Promise<ActionResult> {
     const user = await requireOnboardedUser();
     await deleteDebt(getDb(), user.id, id);
     revalidateFinancial();
+    return ok();
+  } catch (e) {
+    return fail(toErrorKey(e));
+  }
+}
+
+// -------------------------------- Goals ------------------------------------
+
+export async function createGoalAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const user = await requireOnboardedUser();
+    const parsed = createGoalSchema.parse({
+      name: formData.get("name"),
+      targetAmount: formData.get("targetAmount"),
+      accountId: str(formData, "accountId") ?? "",
+    });
+    await createGoal(getDb(), user.id, {
+      name: parsed.name,
+      targetAmountMinor: parseAmountToMinor(parsed.targetAmount),
+      accountId: parsed.accountId ? parsed.accountId : null,
+    });
+    revalidatePath("/goals");
+    return ok();
+  } catch (e) {
+    if (e instanceof ZodError) return fail("errors.invalid_input", fieldErrorsFrom(e));
+    return fail(toErrorKey(e));
+  }
+}
+
+export async function updateGoalAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const user = await requireOnboardedUser();
+    const parsed = updateGoalSchema.parse({
+      id: formData.get("id"),
+      name: str(formData, "name"),
+      targetAmount: str(formData, "targetAmount"),
+      accountId: str(formData, "accountId") ?? "",
+    });
+    await updateGoal(getDb(), user.id, parsed.id, {
+      name: parsed.name,
+      targetAmountMinor: parsed.targetAmount ? parseAmountToMinor(parsed.targetAmount) : undefined,
+      accountId: parsed.accountId !== undefined ? (parsed.accountId ? parsed.accountId : null) : undefined,
+    });
+    revalidatePath("/goals");
+    return ok();
+  } catch (e) {
+    if (e instanceof ZodError) return fail("errors.invalid_input", fieldErrorsFrom(e));
+    return fail(toErrorKey(e));
+  }
+}
+
+export async function deleteGoalAction(id: string): Promise<ActionResult> {
+  try {
+    const user = await requireOnboardedUser();
+    await deleteGoal(getDb(), user.id, id);
+    revalidatePath("/goals");
     return ok();
   } catch (e) {
     return fail(toErrorKey(e));

@@ -17,7 +17,10 @@ import {
 // Enums
 // ---------------------------------------------------------------------------
 
-export const accountTypeEnum = pgEnum("account_type", ["debit", "credit"]);
+// "jamiya" is a rotating savings pool (Omani/Gulf جمعية): money you set aside
+// and cannot access until later. It is an asset counted in net worth, but NOT in
+// spendable cash until moved to a debit account.
+export const accountTypeEnum = pgEnum("account_type", ["debit", "credit", "jamiya"]);
 export const categoryKindEnum = pgEnum("category_kind", ["expense", "income", "both"]);
 export const localeEnum = pgEnum("locale", ["ar", "en"]);
 
@@ -279,6 +282,31 @@ export const debtRepayments = pgTable(
   ],
 );
 
+/**
+ * Savings goals. A goal has a target amount and is measured against either a
+ * specific account's balance or the user's total debit cash (when accountId is
+ * null). It is complete when the measured balance reaches the target.
+ */
+export const goals = pgTable(
+  "goals",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    targetAmount: numeric("target_amount", { precision: 18, scale: 3 }).notNull(),
+    // Optional account the goal is measured against. Null means total debit cash.
+    accountId: uuid("account_id").references(() => accounts.id, { onDelete: "set null" }),
+    // Latched once the target is first reached; stays completed afterward even if
+    // the balance later drops.
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("goals_user_id_idx").on(t.userId)],
+);
+
 // ---------------------------------------------------------------------------
 // Inferred types
 // ---------------------------------------------------------------------------
@@ -295,6 +323,7 @@ export type LedgerEntry = typeof ledgerEntries.$inferSelect;
 export type Debt = typeof debts.$inferSelect;
 export type DebtRepayment = typeof debtRepayments.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
+export type Goal = typeof goals.$inferSelect;
 
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type CategoryKind = (typeof categoryKindEnum.enumValues)[number];

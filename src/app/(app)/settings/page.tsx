@@ -3,6 +3,7 @@ import { requireOnboardedUser } from "@/lib/auth/current-user";
 import { getI18n } from "@/lib/i18n/server";
 import { PageHeader, SectionCard } from "@/components/ui/layout";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { LogoutButton } from "@/components/app/LogoutButton";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 
@@ -17,6 +18,13 @@ export default async function SettingsPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <SectionCard title={t("settings.language")}>
           <LanguageToggle />
+        </SectionCard>
+
+        <SectionCard title={t("settings.theme")}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-[color:var(--color-muted)]">{t("settings.theme")}</span>
+            <ThemeToggle />
+          </div>
         </SectionCard>
 
         <SectionCard title={t("settings.profile")}>

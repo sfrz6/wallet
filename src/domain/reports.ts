@@ -200,6 +200,7 @@ export async function monthlySeries(
 
 export interface DashboardSummary {
   totalDebitCashMinor: bigint;
+  totalCommitteesMinor: bigint;
   totalCreditOutstandingMinor: bigint;
   netWorthMinor: bigint;
   spendingThisMonthMinor: bigint;
@@ -226,9 +227,11 @@ export async function getDashboardSummary(
   ]);
 
   let totalDebitCashMinor = 0n;
+  let totalCommitteesMinor = 0n;
   let totalCreditOutstandingMinor = 0n;
   for (const b of balances) {
     if (b.account.type === "debit") totalDebitCashMinor += b.balanceMinor;
+    else if (b.account.type === "jamiya") totalCommitteesMinor += b.balanceMinor;
     else totalCreditOutstandingMinor += b.balanceMinor;
   }
 
@@ -243,8 +246,9 @@ export async function getDashboardSummary(
 
   return {
     totalDebitCashMinor,
+    totalCommitteesMinor,
     totalCreditOutstandingMinor,
-    netWorthMinor: totalDebitCashMinor - totalCreditOutstandingMinor,
+    netWorthMinor: totalDebitCashMinor + totalCommitteesMinor - totalCreditOutstandingMinor,
     spendingThisMonthMinor: spending,
     incomeThisMonthMinor: income,
     owedToUserMinor,

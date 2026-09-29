@@ -4,6 +4,7 @@ import "./globals.css";
 import { getLocale } from "@/lib/i18n/server";
 import { dirForLocale } from "@/lib/i18n/config";
 import { I18nProvider } from "@/lib/i18n/provider";
+import { getStoredTheme } from "@/lib/theme-server";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,15 +28,25 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0e6b63",
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0e6b63" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1220" },
+  ],
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale();
+  const [locale, theme] = await Promise.all([getLocale(), getStoredTheme()]);
   const dir = dirForLocale(locale);
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${notoArabic.variable}`}>
+    <html
+      lang={locale}
+      dir={dir}
+      data-theme={theme ?? undefined}
+      suppressHydrationWarning
+      className={`${inter.variable} ${notoArabic.variable}`}
+    >
       <body>
         <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>

@@ -10,7 +10,7 @@ import {
   type TransactionType,
 } from "@/db/schema";
 import type { DbExecutor } from "@/db/types";
-import { assertAccount } from "./accounts";
+import { assertAccount, assertAssetAccount } from "./accounts";
 import { assertCategory } from "./categories";
 import { invalidState, notFound, validation } from "./errors";
 import { postTransaction, type PostResult } from "./ledger";
@@ -104,7 +104,11 @@ export interface CreateTransferInput extends BaseInput {
   toAccountId: string;
 }
 
-/** Moves money between two of the user's own debit accounts. Not spending. */
+/**
+ * Moves money between two of the user's own asset accounts (debit or jamiya).
+ * This covers depositing into a committee (debit -> jamiya) and withdrawing from
+ * it (jamiya -> debit). Not spending.
+ */
 export async function createTransfer(
   db: DbExecutor,
   userId: string,
@@ -113,8 +117,8 @@ export async function createTransfer(
   assertPositive(input.amountMinor);
   if (input.fromAccountId === input.toAccountId) throw validation("errors.transfer_same_account");
   return db.transaction(async (tx) => {
-    await assertAccount(tx, userId, input.fromAccountId, "debit");
-    await assertAccount(tx, userId, input.toAccountId, "debit");
+    await assertAssetAccount(tx, userId, input.fromAccountId);
+    await assertAssetAccount(tx, userId, input.toAccountId);
     return postTransaction(tx, {
       userId,
       type: "transfer",

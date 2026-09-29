@@ -8,6 +8,27 @@
       "when": 1790624126321,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790631205136,
+      "tag": "0001_goals",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790707276144,
+      "tag": "0002_jamiya",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790708376839,
+      "tag": "0003_goal_completed_at",
+      "breakpoints": true
     }
   ]
 }

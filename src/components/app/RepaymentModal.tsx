@@ -8,6 +8,7 @@ import { Button, SubmitButton } from "@/components/ui/Button";
 import { SelectField, TextField } from "@/components/ui/fields";
 import { Alert } from "@/components/ui/Alert";
 import { useI18n } from "@/lib/i18n/provider";
+import { clientId } from "@/lib/id";
 import type { AccountLite } from "./types";
 
 function todayIso(): string {
@@ -21,17 +22,21 @@ export function RepaymentModal({
   debtId,
   direction,
   debitAccounts,
-  trigger,
+  triggerLabel,
+  triggerVariant = "secondary",
+  triggerClassName,
 }: {
   debtId: string;
   direction: "lent" | "borrowed";
   debitAccounts: AccountLite[];
-  trigger: (open: () => void) => React.ReactNode;
+  triggerLabel: string;
+  triggerVariant?: "primary" | "secondary" | "ghost";
+  triggerClassName?: string;
 }) {
   const { t } = useI18n();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [requestId, setRequestId] = useState(() => crypto.randomUUID());
+  const [requestId, setRequestId] = useState(() => clientId());
   const [state, formAction] = useActionState(addRepaymentAction, null);
 
   useEffect(() => {
@@ -43,10 +48,16 @@ export function RepaymentModal({
 
   return (
     <>
-      {trigger(() => {
-        setRequestId(crypto.randomUUID());
-        setIsOpen(true);
-      })}
+      <Button
+        variant={triggerVariant}
+        className={triggerClassName}
+        onClick={() => {
+          setRequestId(clientId());
+          setIsOpen(true);
+        }}
+      >
+        {triggerLabel}
+      </Button>
       <Modal open={isOpen} onClose={() => setIsOpen(false)} title={t("debts.recordRepayment")}>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="debtId" value={debtId} />

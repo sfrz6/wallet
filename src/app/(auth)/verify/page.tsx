@@ -1,11 +1,15 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { getEnv, isProduction } from "@/lib/env";
+import { emailVerificationEnabled, getEnv, isProduction } from "@/lib/env";
 import { VerifyForm } from "./VerifyForm";
 
 export default async function VerifyPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  // V1: verification disabled - never show this page.
+  if (!emailVerificationEnabled()) {
+    redirect(user.onboardingCompletedAt ? "/dashboard" : "/onboarding");
+  }
   if (user.emailVerifiedAt) {
     redirect(user.onboardingCompletedAt ? "/dashboard" : "/onboarding");
   }

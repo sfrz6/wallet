@@ -16,6 +16,9 @@ import { createVerificationCode, verifyCode } from "@/lib/auth/verification";
 import { hitRateLimit } from "@/lib/auth/rate-limit";
 import { sendEmail, verificationEmailContent } from "@/lib/email/send";
 import { getClientIp } from "@/lib/request";
+import { emailVerificationEnabled } from "@/lib/env";
+import { eq } from "drizzle-orm";
+import { users } from "@/db/schema";
 import { getLocale } from "@/lib/i18n/server";
 import { LOCALE_COOKIE } from "@/lib/i18n/config";
 import { loginSchema, signupSchema, verifyCodeSchema } from "@/lib/validation/schemas";
@@ -57,11 +60,20 @@ export async function signupAction(
       locale: parsed.locale,
     });
 
-    await issueVerification(user.id, user.email);
+    if (emailVerificationEnabled()) {
+      await issueVerification(user.id, user.email);
+      redirectTo = "/verify";
+    } else {
+      // V1: no email verification. Mark the account verified immediately.
+      await db
+        .update(users)
+        .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
+        .where(eq(users.id, user.id));
+      redirectTo = "/onboarding";
+    }
 
     const session = await createSession(db, user.id);
     await setSessionCookie(session.token, session.expiresAt);
-    redirectTo = "/verify";
   } catch (e) {
     if (e instanceof ZodError) return fail("errors.invalid_input", fieldErrorsFrom(e));
     return fail(toErrorKey(e));
@@ -99,7 +111,7 @@ export async function loginAction(
     const store = await cookies();
     store.set(LOCALE_COOKIE, user.locale, { path: "/", maxAge: 60 * 60 * 24 * 365 });
 
-    if (!user.emailVerifiedAt) {
+    if (emailVerificationEnabled() && !user.emailVerifiedAt) {
       await issueVerification(user.id, user.email);
       redirectTo = "/verify";
     } else if (!user.onboardingCompletedAt) {

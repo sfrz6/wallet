@@ -33,6 +33,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Allows building into an isolated output dir (e.g. to verify a build while a
+  // dev server is using .next). Defaults to the standard .next directory.
+  distDir: process.env.BUILD_DIST_DIR || ".next",
   serverExternalPackages: ["@node-rs/argon2", "pg"],
   async headers() {
     return [

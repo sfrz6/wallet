@@ -76,7 +76,7 @@ export const changePasswordSchema = z
 
 // ----------------------------- Financial -----------------------------------
 
-export const accountTypeSchema = z.enum(["debit", "credit"]);
+export const accountTypeSchema = z.enum(["debit", "credit", "jamiya"]);
 export const categoryKindSchema = z.enum(["expense", "income", "both"]);
 
 export const createAccountSchema = z.object({
@@ -162,6 +162,19 @@ export const borrowSchema = z.object({
   dueDate: isoDate.optional().or(z.literal("")),
   note: optionalNote,
   clientRequestId: z.string().max(64).optional(),
+});
+
+export const createGoalSchema = z.object({
+  name: z.string().trim().min(1, "errors.goal_name_required").max(80),
+  targetAmount: positiveAmount,
+  accountId: uuid.optional().or(z.literal("")),
+});
+
+export const updateGoalSchema = z.object({
+  id: uuid,
+  name: z.string().trim().min(1, "errors.goal_name_required").max(80).optional(),
+  targetAmount: positiveAmount.optional(),
+  accountId: uuid.optional().or(z.literal("")),
 });
 
 export const repaymentSchema = z.object({
