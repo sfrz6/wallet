@@ -1,10 +1,13 @@
 # Production image for self-hosting via Docker (e.g. a VPS behind Caddy/Nginx).
 # Vercel deployments ignore this file entirely and use their own build pipeline.
 #
+# Uses a glibc-based image (not Alpine/musl): @node-rs/argon2 ships prebuilt
+# native binaries for glibc Linux, avoiding the musl/WASM fallback path.
+#
 # Single-stage on purpose: keeps devDependencies (tsx, drizzle-kit) available
 # inside the running container so `npm run db:migrate` can be executed with
 # `docker compose exec app npm run db:migrate` without a separate build stage.
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
