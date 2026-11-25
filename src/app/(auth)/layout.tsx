@@ -5,7 +5,10 @@ import { Logo } from "@/components/Logo";
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between px-5 py-4">
+      <header
+        className="flex items-center justify-between px-5 py-4"
+        style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+      >
         <Logo size={34} />
         <div className="flex items-center gap-2">
           <ThemeToggle />

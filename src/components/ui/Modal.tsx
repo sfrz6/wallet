@@ -49,7 +49,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="card max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-b-none rounded-t-2xl outline-none sm:rounded-2xl"
+        className="card max-h-[92vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-b-none rounded-t-2xl outline-none sm:rounded-2xl"
       >
         <div className="flex items-center justify-between border-b border-[color:var(--color-border)] px-5 py-4">
           <h2 className="text-base font-semibold">{title}</h2>

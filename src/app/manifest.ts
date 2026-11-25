@@ -2,11 +2,15 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "محفظتي",
     short_name: "محفظتي",
     description: "Personal finance management",
     start_url: "/",
+    scope: "/",
     display: "standalone",
+    lang: "ar",
+    dir: "rtl",
     background_color: "#0b1220",
     theme_color: "#0e6b63",
     icons: [

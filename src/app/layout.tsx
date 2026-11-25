@@ -23,13 +23,18 @@ export const metadata: Metadata = {
   description: "Personal finance management",
   applicationName: "محفظتي",
   appleWebApp: { capable: true, title: "محفظتي", statusBarStyle: "default" },
+  // Stops iOS Safari from auto-linking things like account numbers or dates
+  // typed into notes as tappable phone/calendar links.
+  formatDetection: { telephone: false, date: false, address: false, email: false },
   robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover",
+  interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#0e6b63" },
     { media: "(prefers-color-scheme: dark)", color: "#0b1220" },

@@ -52,6 +52,7 @@ export const en = {
     logout: "Sign out",
     addTransaction: "Add transaction",
     menu: "Menu",
+    more: "More",
   },
   auth: {
     signIn: "Sign in",
@@ -399,6 +400,7 @@ export const ar: Dictionary = {
     logout: "تسجيل الخروج",
     addTransaction: "إضافة عملية",
     menu: "القائمة",
+    more: "المزيد",
   },
   auth: {
     signIn: "تسجيل الدخول",

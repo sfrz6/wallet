@@ -106,6 +106,9 @@ body {
   padding: 0;
   margin: 0;
   overflow-x: hidden;
+  /* Contains the iOS rubber-band bounce to each scroll container instead of
+     chaining into Safari's own UI reveal, for a more native, in-app feel. */
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -116,6 +119,31 @@ body {
   text-rendering: optimizeLegibility;
   font-size: 15px;
   line-height: 1.5;
+  /* Clears the notch/home-indicator in landscape on iPhones. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Removes the gray tap-flash on touch devices; interactive elements define
+   their own hover/active states instead. */
+a,
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Buttons feel instant (no 300ms delay) and never trigger accidental
+   double-tap-to-zoom on repeated taps. */
+.btn,
+a {
+  touch-action: manipulation;
+}
+
+/* No OS "copy/share" callout on long-pressing a button, while text content
+   and inputs remain normally selectable. */
+button,
+.btn {
+  -webkit-touch-callout: none;
 }
 
 /* Numbers stay legible and aligned in tables regardless of locale. */
@@ -153,6 +181,7 @@ body {
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
     cursor: pointer;
+    min-height: 44px;
     transition:
       background-color 0.12s ease,
       border-color 0.12s ease,
@@ -229,6 +258,22 @@ body {
   }
   .input-error {
     border-color: var(--color-negative);
+  }
+
+  /* Custom chevron so the native control matches our box styling across iOS
+     and Android instead of each platform's own arrow glyph. Positioned on the
+     logical "end" side so it flips correctly in RTL. */
+  .select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 16px;
+  }
+  :dir(rtl) .select {
+    background-position: left 0.65rem center;
   }
 
   .badge {

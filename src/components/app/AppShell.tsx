@@ -16,7 +16,7 @@ import {
   DashboardIcon,
   DebtsIcon,
   GoalsIcon,
-  MenuIcon,
+  MoreIcon,
   PlusIcon,
   ReportsIcon,
   SettingsIcon,
@@ -40,6 +40,10 @@ const NAV: NavItem[] = [
   { href: "/settings", key: "nav.settings", Icon: SettingsIcon },
 ];
 
+// The mobile bottom tab bar can only fit a handful of slots. These are the
+// highest-frequency daily actions; everything else lives behind "More".
+const MOBILE_TAB_HREFS = ["/dashboard", "/transactions", "/accounts"];
+
 export function AppShell({ children, userName }: { children: React.ReactNode; userName: string }) {
   const { t } = useI18n();
   const pathname = usePathname();
@@ -47,6 +51,10 @@ export function AppShell({ children, userName }: { children: React.ReactNode; us
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  const mobileTabs = NAV.filter((item) => MOBILE_TAB_HREFS.includes(item.href));
+  const overflowNav = NAV.filter((item) => !MOBILE_TAB_HREFS.includes(item.href));
+  const isMoreActive = overflowNav.some((item) => isActive(item.href));
 
   const navLinks = (onClick?: () => void) =>
     NAV.map(({ href, key, Icon }) => (
@@ -97,26 +105,16 @@ export function AppShell({ children, userName }: { children: React.ReactNode; us
         </div>
       </aside>
 
-      {/* Mobile top bar */}
+      {/* Mobile top bar: branding only, navigation lives in the bottom tab bar. */}
       <header
         className="sticky top-0 z-30 flex items-center justify-between border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-4 py-3 lg:hidden"
         style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
       >
         {brand}
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            type="button"
-            aria-label={t("nav.menu")}
-            onClick={() => setDrawerOpen(true)}
-            className="btn btn-ghost px-2"
-          >
-            <MenuIcon />
-          </button>
-        </div>
+        <ThemeToggle />
       </header>
 
-      {/* Mobile drawer */}
+      {/* "More" sheet: the nav items that don't fit in the bottom tab bar. */}
       {drawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -137,7 +135,23 @@ export function AppShell({ children, userName }: { children: React.ReactNode; us
               </button>
             </div>
             <nav className="mt-4 flex flex-1 flex-col gap-1">
-              {navLinks(() => setDrawerOpen(false))}
+              {overflowNav.map(({ href, key, Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setDrawerOpen(false)}
+                  aria-current={isActive(href) ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                    isActive(href)
+                      ? "bg-[color:var(--color-accent-soft)] text-[color:var(--color-primary)]"
+                      : "text-[color:var(--color-muted)] hover:bg-[color:var(--color-surface-2)] hover:text-[color:var(--color-fg)]",
+                  )}
+                >
+                  <Icon width={22} height={22} />
+                  <span>{t(key)}</span>
+                </Link>
+              ))}
             </nav>
             <div className="mt-4 space-y-3 border-t border-[color:var(--color-border)] pt-4">
               <div className="flex items-center gap-2">
@@ -151,21 +165,73 @@ export function AppShell({ children, userName }: { children: React.ReactNode; us
         </div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-8">
+      {/* Main content: extra bottom clearance on mobile for the fixed tab bar. */}
+      <main className="flex-1 px-4 py-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-8">
         <div className="mx-auto w-full max-w-5xl">{children}</div>
       </main>
 
-      {/* Mobile floating add button */}
-      <button
-        type="button"
-        onClick={() => quickAdd.open()}
-        aria-label={t("nav.addTransaction")}
-        className="btn btn-primary fixed end-5 z-30 h-14 w-14 rounded-full p-0 shadow-[var(--shadow-pop)] lg:hidden"
-        style={{ bottom: "max(1.25rem, calc(env(safe-area-inset-bottom) + 0.75rem))" }}
+      {/* Mobile bottom tab bar with an elevated center "Add" button. */}
+      <nav
+        aria-label={t("nav.menu")}
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] pt-1 lg:hidden"
+        style={{ paddingBottom: "max(0.4rem, env(safe-area-inset-bottom))" }}
       >
-        <PlusIcon width={24} height={24} />
-      </button>
+        {mobileTabs[0] && <MobileTab item={mobileTabs[0]} active={isActive(mobileTabs[0].href)} t={t} />}
+        {mobileTabs[1] && <MobileTab item={mobileTabs[1]} active={isActive(mobileTabs[1].href)} t={t} />}
+
+        <div className="flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => quickAdd.open()}
+            aria-label={t("nav.addTransaction")}
+            className="-mt-7 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-fg)] shadow-[var(--shadow-pop)] ring-4 ring-[color:var(--color-bg)] transition-transform active:scale-95"
+          >
+            <PlusIcon width={28} height={28} strokeWidth={2.2} />
+          </button>
+        </div>
+
+        {mobileTabs[2] && <MobileTab item={mobileTabs[2]} active={isActive(mobileTabs[2].href)} t={t} />}
+
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          aria-label={t("nav.more")}
+          className={cn(
+            "flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors",
+            isMoreActive
+              ? "text-[color:var(--color-primary)]"
+              : "text-[color:var(--color-muted)]",
+          )}
+        >
+          <MoreIcon width={24} height={24} />
+          <span>{t("nav.more")}</span>
+        </button>
+      </nav>
     </div>
+  );
+}
+
+function MobileTab({
+  item,
+  active,
+  t,
+}: {
+  item: NavItem;
+  active: boolean;
+  t: (key: string) => string;
+}) {
+  const { href, key, Icon } = item;
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors",
+        active ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-muted)]",
+      )}
+    >
+      <Icon width={24} height={24} />
+      <span>{t(key)}</span>
+    </Link>
   );
 }

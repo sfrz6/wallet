@@ -96,6 +96,15 @@ export function MenuIcon(p: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+export function MoreIcon(p: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...p} fill="currentColor" stroke="none">
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
+  );
+}
 export function SunIcon(p: SVGProps<SVGSVGElement>) {
   return (
     <svg {...base} {...p}>
